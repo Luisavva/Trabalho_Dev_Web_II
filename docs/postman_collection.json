@@ -1,0 +1,283 @@
+{
+  "info": {
+    "name": "TaskFlow API — Plataforma de Tarefas",
+    "description": "Coleção cobrindo autenticação e CRUD principal (projetos, tarefas, etiquetas e usuários). Use o login para preencher automaticamente as variáveis {{token}} e {{adminToken}}.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base", "value": "http://localhost:3333" },
+    { "key": "token", "value": "" },
+    { "key": "adminToken", "value": "" },
+    { "key": "projectId", "value": "" },
+    { "key": "taskId", "value": "" },
+    { "key": "tagId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "request": { "method": "GET", "url": "{{base}}/health" }
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register (USER)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base}}/auth/register",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Maria Souza\",\n  \"email\": \"maria@taskflow.dev\",\n  \"password\": \"senha123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login (USER)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.token) pm.collectionVariables.set('token', json.token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base}}/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"maria@taskflow.dev\",\n  \"password\": \"senha123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login (ADMIN — via seed)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.token) pm.collectionVariables.set('adminToken', json.token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base}}/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@taskflow.dev\",\n  \"password\": \"admin123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Me",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base}}/auth/me"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Projects",
+      "item": [
+        {
+          "name": "Create Project",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.id) pm.collectionVariables.set('projectId', json.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{base}}/projects",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Lançamento do site\",\n  \"description\": \"Tarefas do MVP\"\n}"
+            }
+          }
+        },
+        {
+          "name": "List Projects (paginado)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base}}/projects?page=1&limit=20"
+          }
+        },
+        {
+          "name": "Get Project (com include)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base}}/projects/{{projectId}}"
+          }
+        },
+        {
+          "name": "Update Project (dono)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{base}}/projects/{{projectId}}",
+            "body": { "mode": "raw", "raw": "{\n  \"description\": \"Escopo revisado\"\n}" }
+          }
+        },
+        {
+          "name": "Delete Project (soft delete)",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base}}/projects/{{projectId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tasks",
+      "item": [
+        {
+          "name": "Create Task",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.id) pm.collectionVariables.set('taskId', json.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{base}}/tasks",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Configurar deploy\",\n  \"status\": \"TODO\",\n  \"priority\": \"HIGH\",\n  \"projectId\": \"{{projectId}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "List Tasks (filtros)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base}}/tasks?projectId={{projectId}}&status=TODO"
+          }
+        },
+        {
+          "name": "Get Task (com relacionamentos)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base}}/tasks/{{taskId}}"
+          }
+        },
+        {
+          "name": "Update Task",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{base}}/tasks/{{taskId}}",
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"DONE\"\n}" }
+          }
+        },
+        {
+          "name": "Delete Task",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base}}/tasks/{{taskId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tags",
+      "item": [
+        {
+          "name": "List Tags (público)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const arr = pm.response.json();",
+                  "if (Array.isArray(arr) && arr[0]) pm.collectionVariables.set('tagId', arr[0].id);"
+                ]
+              }
+            }
+          ],
+          "request": { "method": "GET", "url": "{{base}}/tags" }
+        },
+        {
+          "name": "Create Tag (USER → 403)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{base}}/tags",
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"bloqueado\",\n  \"color\": \"#e11d48\"\n}" }
+          }
+        },
+        {
+          "name": "Create Tag (ADMIN → 201)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{base}}/tags",
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"prioridade-alta\",\n  \"color\": \"#e11d48\"\n}" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "List Users (ADMIN)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": "{{base}}/users"
+          }
+        }
+      ]
+    }
+  ]
+}
