@@ -1,0 +1,59 @@
+{
+  "name": "taskflow-api",
+  "version": "1.0.0",
+  "description": "API REST de uma plataforma de tarefas (To-do) — Node.js, Express, Prisma, JWT, Zod e testes com Vitest/Supertest",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "start": "tsx src/server.ts",
+    "typecheck": "tsc --noEmit",
+    "generate": "prisma generate",
+    "migrate": "cross-env DATABASE_URL=file:./dev.db prisma migrate dev",
+    "migrate:deploy": "cross-env DATABASE_URL=file:./dev.db prisma migrate deploy",
+    "studio": "cross-env DATABASE_URL=file:./dev.db prisma studio",
+    "seed": "tsx prisma/seed.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "keywords": [
+    "node",
+    "typescript",
+    "express",
+    "prisma",
+    "jwt",
+    "rest-api"
+  ],
+  "author": "Seu Nome",
+  "license": "MIT",
+  "dependencies": {
+    "@prisma/adapter-better-sqlite3": "^6.7.0",
+    "@prisma/client": "^6.7.0",
+    "bcryptjs": "^2.4.3",
+    "better-sqlite3": "^11.8.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/better-sqlite3": "^7.6.12",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/jsonwebtoken": "^9.0.7",
+    "@types/node": "^22.10.7",
+    "@types/supertest": "^6.0.2",
+    "@vitest/coverage-v8": "^3.0.5",
+    "cross-env": "^7.0.3",
+    "prisma": "^6.7.0",
+    "supertest": "^7.0.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.5"
+  }
+}
